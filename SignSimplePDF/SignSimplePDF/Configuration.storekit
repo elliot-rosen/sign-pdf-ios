@@ -1,0 +1,113 @@
+{
+  "identifier" : "Configuration",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "0.00",
+      "familyShareable" : true,
+      "internalID" : "6736649046",
+      "localizations" : [
+        {
+          "description" : "Lifetime access to all premium features. One-time purchase with unlimited PDF signing, advanced editing tools, form filling, custom stamps, and batch processing capabilities. Forever.",
+          "displayName" : "SignSimple Premium Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.noworrieslifestyle.signsimplepdf.premium.lifetime",
+      "referenceName" : "Premium Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "123456789",
+    "_developerTeamID" : "ABCD123456",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 736649044.55925703,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptions" : [
+    {
+      "adHocOffers" : [
+
+      ],
+      "codeOffers" : [
+
+      ],
+      "displayPrice" : "0.00",
+      "familyShareable" : false,
+      "groupNumber" : 1,
+      "internalID" : "6736649044",
+      "introductoryOffer" : {
+        "internalID" : "70234B4B",
+        "paymentMode" : "free",
+        "subscriptionPeriod" : "P3D"
+      },
+      "localizations" : [
+        {
+          "description" : "Premium weekly subscription with unlimited PDF signing, advanced editing tools, form filling, custom stamps, and batch processing capabilities.",
+          "displayName" : "SignSimple Premium Weekly",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.noworrieslifestyle.signsimplepdf.premium.weekly",
+      "recurringSubscriptionPeriod" : "P1W",
+      "referenceName" : "Premium Weekly",
+      "subscriptionGroupID" : "21557738",
+      "type" : "RecurringSubscription"
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
