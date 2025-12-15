@@ -5,7 +5,7 @@
   ],
   "products" : [
     {
-      "displayPrice" : "0.00",
+      "displayPrice" : "29.99",
       "familyShareable" : true,
       "internalID" : "6736649046",
       "localizations" : [
@@ -75,35 +75,44 @@
       }
     ]
   },
-  "subscriptions" : [
+  "subscriptionGroups" : [
     {
-      "adHocOffers" : [
-
-      ],
-      "codeOffers" : [
-
-      ],
-      "displayPrice" : "0.00",
-      "familyShareable" : false,
-      "groupNumber" : 1,
-      "internalID" : "6736649044",
-      "introductoryOffer" : {
-        "internalID" : "70234B4B",
-        "paymentMode" : "free",
-        "subscriptionPeriod" : "P3D"
-      },
+      "id" : "21557738",
       "localizations" : [
-        {
-          "description" : "Premium weekly subscription with unlimited PDF signing, advanced editing tools, form filling, custom stamps, and batch processing capabilities.",
-          "displayName" : "SignSimple Premium Weekly",
-          "locale" : "en_US"
-        }
+
       ],
-      "productID" : "com.noworrieslifestyle.signsimplepdf.premium.weekly",
-      "recurringSubscriptionPeriod" : "P1W",
-      "referenceName" : "Premium Weekly",
-      "subscriptionGroupID" : "21557738",
-      "type" : "RecurringSubscription"
+      "name" : "Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6736649044",
+          "introductoryOffer" : {
+            "internalID" : "70234B4B",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "Premium weekly subscription with unlimited PDF signing, advanced editing tools, form filling, custom stamps, and batch processing capabilities.",
+              "displayName" : "SignSimple Premium Weekly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.noworrieslifestyle.signsimplepdf.premium.weekly",
+          "recurringSubscriptionPeriod" : "P1W",
+          "referenceName" : "Premium Weekly",
+          "subscriptionGroupID" : "21557738",
+          "type" : "RecurringSubscription"
+        }
+      ]
     }
   ],
   "version" : {

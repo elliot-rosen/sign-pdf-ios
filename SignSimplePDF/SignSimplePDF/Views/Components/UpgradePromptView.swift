@@ -193,6 +193,71 @@ extension View {
             )
         )
     }
+
+    /// Overlay modifier with external binding control for showing/hiding
+    func upgradePromptOverlay(
+        isPresented: Binding<Bool>,
+        feature: String,
+        featureIcon: String,
+        features: [String]
+    ) -> some View {
+        self.modifier(
+            UpgradePromptOverlayWithBinding(
+                isPresented: isPresented,
+                feature: feature,
+                featureIcon: featureIcon,
+                features: features
+            )
+        )
+    }
+}
+
+// MARK: - Overlay Modifier with Binding
+
+struct UpgradePromptOverlayWithBinding: ViewModifier {
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @Binding var isPresented: Bool
+
+    let feature: String
+    let featureIcon: String
+    let features: [String]
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                Group {
+                    if isPresented {
+                        ZStack {
+                            // Semi-transparent background
+                            Color.black.opacity(0.6)
+                                .ignoresSafeArea()
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        isPresented = false
+                                    }
+                                }
+
+                            // Upgrade prompt
+                            UpgradePromptView(
+                                feature: feature,
+                                description: features.joined(separator: ", "),
+                                icon: featureIcon,
+                                onUpgrade: {
+                                    isPresented = false
+                                    subscriptionManager.presentPaywall()
+                                },
+                                onDismiss: {
+                                    withAnimation(.spring()) {
+                                        isPresented = false
+                                    }
+                                }
+                            )
+                            .transition(.scale.combined(with: .opacity))
+                        }
+                    }
+                }
+            )
+    }
 }
 
 #Preview("Upgrade Prompt") {

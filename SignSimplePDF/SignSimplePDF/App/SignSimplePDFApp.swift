@@ -6,7 +6,7 @@ struct SignSimplePDFApp: App {
     let persistenceController = PersistenceController.shared
     @StateObject private var subscriptionManager = SubscriptionManager()
     @StateObject private var documentManager = DocumentManager()
-    @StateObject private var signatureManager = SignatureManager()
+    @StateObject private var signatureManager: SignatureManager
     @StateObject private var onboardingCoordinator: OnboardingCoordinator
 
     init() {

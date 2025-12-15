@@ -216,8 +216,8 @@ struct PaywallView: View {
             if subscriptionManager.isLoadingProducts {
                 // Loading state
                 LoadingProductsView()
-            } else if let error = subscriptionManager.productLoadError {
-                // Error state with retry and dismiss options
+            } else if subscriptionManager.products.isEmpty, let error = subscriptionManager.productLoadError {
+                // Error state with retry and dismiss options (only if no products loaded)
                 ProductLoadErrorView(
                     errorMessage: error,
                     onRetry: {
@@ -240,7 +240,7 @@ struct PaywallView: View {
                 ForEach(subscriptionManager.products, id: \.id) { product in
                     let isTrialEligible = activateTrial &&
                                           subscriptionManager.isEligibleForTrial &&
-                                          product.subscription?.introductoryOffer != nil
+                                          product.subscription?.introductoryOffer?.paymentMode == .freeTrial
 
                     ProductSelectionCard(
                         product: product,
