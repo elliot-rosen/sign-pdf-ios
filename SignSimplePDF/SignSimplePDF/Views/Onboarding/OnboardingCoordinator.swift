@@ -19,9 +19,9 @@ class OnboardingCoordinator: ObservableObject {
         ),
         OnboardingStep(
             icon: "doc.text.image",
-            title: "Advanced PDF Editing",
-            description: "Edit your PDFs like a pro. Merge, split, rotate, and reorder pages with powerful tools.",
-            features: ["Merge multiple PDFs", "Split documents", "Batch process images"],
+            title: "Organize Your Pages",
+            description: "Take control of your documents. Combine PDFs, reorder, and manage pages with intuitive tools.",
+            features: ["Combine multiple PDFs", "Drag to reorder pages", "Export and share"],
             isPremium: true
         )
     ]

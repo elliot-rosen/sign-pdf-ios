@@ -10,7 +10,7 @@
       "internalID" : "6736649046",
       "localizations" : [
         {
-          "description" : "Lifetime access to all premium features. One-time purchase with unlimited PDF signing, advanced editing tools, form filling, custom stamps, and batch processing capabilities. Forever.",
+          "description" : "Lifetime access to all premium features. Unlimited signatures, combine PDFs, and export without watermarks. One-time purchase, forever.",
           "displayName" : "SignSimple Premium Lifetime",
           "locale" : "en_US"
         }
@@ -101,7 +101,7 @@
           },
           "localizations" : [
             {
-              "description" : "Premium weekly subscription with unlimited PDF signing, advanced editing tools, form filling, custom stamps, and batch processing capabilities.",
+              "description" : "Premium weekly subscription. Unlimited signatures, combine PDFs, and export without watermarks.",
               "displayName" : "SignSimple Premium Weekly",
               "locale" : "en_US"
             }

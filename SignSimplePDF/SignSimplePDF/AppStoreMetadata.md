@@ -52,9 +52,9 @@ SignSimple PDF makes document signing effortless. Whether you need to sign contr
 Unlock the full potential with Premium:
 
 • **Unlimited Signatures** - Save as many signature styles as you need (Free: 3 signatures)
-• **Advanced Editing** - Rotate, reorder, delete, and merge PDF pages
-• **Batch Processing** - Process multiple PDFs at once
-• **Priority Support** - Get help when you need it
+• **Combine PDFs** - Add pages from other PDFs to your document
+• **No Watermarks** - Export clean PDFs without watermarks
+• **Advanced Editing** - Reorder and delete PDF pages
 
 **WHY CHOOSE SIGNSIMPLE PDF?**
 

@@ -6,6 +6,7 @@ struct PDFThumbnailSidebar: View {
     @Binding var currentPageIndex: Int
     let onReorder: (Int, Int) -> Void
     let onDelete: (Int) -> Void
+    let onAddPages: () -> Void
     let onDocumentChanged: () -> Void
 
     @State private var draggedPageIndex: Int?
@@ -77,6 +78,30 @@ struct PDFThumbnailSidebar: View {
                                 }
                             }
                         }
+
+                        // Add pages button
+                        Button {
+                            HapticManager.shared.buttonTap()
+                            onAddPages()
+                        } label: {
+                            VStack(spacing: AppTheme.Spacing.xs) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+                                        .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [6, 3]))
+                                        .foregroundColor(AppTheme.Colors.textTertiary.opacity(0.5))
+
+                                    Image(systemName: "plus")
+                                        .font(.title2)
+                                        .foregroundColor(AppTheme.Colors.textTertiary)
+                                }
+                                .frame(width: 80, height: 100)
+
+                                Text("Add")
+                                    .font(AppTheme.Typography.caption2)
+                                    .foregroundColor(AppTheme.Colors.textTertiary)
+                            }
+                        }
+                        .buttonStyle(.plain)
                     }
                     .padding(AppTheme.Spacing.sm)
                 }
@@ -282,6 +307,7 @@ struct ThumbnailDropDelegate: DropDelegate {
             currentPageIndex: .constant(0),
             onReorder: { _, _ in },
             onDelete: { _ in },
+            onAddPages: { },
             onDocumentChanged: { }
         )
         .frame(width: 120)

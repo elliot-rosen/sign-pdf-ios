@@ -159,7 +159,7 @@ struct FeatureRowView: View {
         FeatureRowView(
             icon: "doc.text.image",
             title: "Advanced PDF Editing",
-            description: "Rotate, reorder, delete, and merge pages",
+            description: "Combine, reorder, and delete pages",
             isPremium: true,
             isUnlocked: false
         ) {

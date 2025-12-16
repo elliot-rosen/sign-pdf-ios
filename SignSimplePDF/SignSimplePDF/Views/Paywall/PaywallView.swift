@@ -139,11 +139,10 @@ struct PaywallView: View {
         VStack(spacing: AppTheme.Spacing.md) {
             let features = [
                 ("signature", "Unlimited Signatures", "Save and manage all your signatures"),
-                ("doc.on.doc", "Merge PDFs", "Combine multiple PDFs into one document"),
-                ("scissors", "Split PDFs", "Split PDFs into separate documents"),
+                ("doc.on.doc", "Combine PDFs", "Add pages from other PDFs to your document"),
                 ("arrow.up.arrow.down", "Reorder Pages", "Drag and drop to reorganize PDF pages"),
-                ("arrow.clockwise", "Rotate Pages", "Rotate individual pages in your PDFs"),
-                ("trash", "Delete Pages", "Remove unwanted pages from documents")
+                ("trash", "Delete Pages", "Remove unwanted pages from documents"),
+                ("checkmark.seal", "No Watermarks", "Export clean PDFs without watermarks")
             ]
 
             ForEach(Array(features.enumerated()), id: \.offset) { index, feature in

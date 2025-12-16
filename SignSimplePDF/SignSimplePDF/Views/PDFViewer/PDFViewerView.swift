@@ -191,8 +191,8 @@ class AnnotationEditingOverlay: UIView {
                 newBounds = initial.offsetBy(dx: dx, dy: dy)
             }
 
-            // Minimum size constraint
-            if newBounds.width >= 30 && newBounds.height >= 30 {
+            // Minimum size constraint (allow smaller signatures)
+            if newBounds.width >= 15 && newBounds.height >= 15 {
                 annotation.bounds = newBounds
                 pdfView.setNeedsDisplay()
                 setNeedsDisplay()
@@ -495,6 +495,7 @@ struct PDFViewerView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var documentManager: DocumentManager
     @EnvironmentObject var signatureManager: SignatureManager
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
 
     @State private var pdfDocument: PDFDocument?
     @State private var pdfView: PDFView?
@@ -523,6 +524,10 @@ struct PDFViewerView: View {
     // Discard confirmation
     @State private var showDiscardAlert = false
 
+    // Add pages (premium feature)
+    @State private var showAddPagesUpgradePrompt = false
+    @State private var showAddPagesPicker = false
+
     private var hasSelection: Bool {
         selectedAnnotation != nil
     }
@@ -537,6 +542,7 @@ struct PDFViewerView: View {
                         currentPageIndex: $currentPageIndex,
                         onReorder: handleReorder,
                         onDelete: handleDeletePage,
+                        onAddPages: handleAddPages,
                         onDocumentChanged: { hasUnsavedChanges = true }
                     )
                     .frame(width: min(120, geometry.size.width * 0.25))
@@ -661,6 +667,21 @@ struct PDFViewerView: View {
         } message: {
             Text("You have unsaved changes. Are you sure you want to discard them?")
         }
+        .sheet(isPresented: $showAddPagesPicker) {
+            DocumentPicker { url in
+                mergePages(from: url)
+            }
+        }
+        .upgradePromptOverlay(
+            isPresented: $showAddPagesUpgradePrompt,
+            feature: "Add Pages",
+            featureIcon: "doc.badge.plus",
+            features: [
+                "Combine multiple PDFs",
+                "Unlimited signatures",
+                "No watermarks on exports"
+            ]
+        )
         .onAppear {
             loadDocument()
         }
@@ -810,6 +831,71 @@ struct PDFViewerView: View {
         HapticManager.shared.importantAction()
     }
 
+    private func handleAddPages() {
+        if subscriptionManager.isSubscribed {
+            showAddPagesPicker = true
+        } else {
+            showAddPagesUpgradePrompt = true
+        }
+    }
+
+    private func mergePages(from url: URL) {
+        guard let currentDoc = pdfDocument else { return }
+
+        // Access security-scoped resource
+        let shouldStopAccessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if shouldStopAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        // Check file size
+        do {
+            let fileSize = try FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64 ?? 0
+            if fileSize > DocumentError.maxFileSizeBytes {
+                errorMessage = DocumentError.fileTooLarge(maxSizeMB: 50).localizedDescription
+                showError = true
+                return
+            }
+        } catch {
+            errorMessage = "Could not read the file"
+            showError = true
+            return
+        }
+
+        // Try to open the PDF
+        guard let newDoc = PDFDocument(url: url) else {
+            errorMessage = DocumentError.corruptedPDF.localizedDescription
+            showError = true
+            return
+        }
+
+        // Check for empty PDF
+        if newDoc.pageCount == 0 {
+            errorMessage = DocumentError.emptyPDF.localizedDescription
+            showError = true
+            return
+        }
+
+        // Append all pages from the new document
+        for i in 0..<newDoc.pageCount {
+            if let page = newDoc.page(at: i) {
+                currentDoc.insert(page, at: currentDoc.pageCount)
+            }
+        }
+
+        hasUnsavedChanges = true
+
+        // Force sidebar to refresh by toggling pdfDocument binding
+        let doc = pdfDocument
+        pdfDocument = nil
+        pdfDocument = doc
+
+        refreshPDFView()
+        HapticManager.shared.success()
+    }
+
     // MARK: - Signature Operations
 
     private func enterSignaturePlacementMode() {
@@ -872,15 +958,25 @@ struct PDFViewerView: View {
     }
 
     private func refreshPDFView() {
-        guard let pdfView = pdfView else { return }
+        guard let pdfView = pdfView,
+              let document = pdfView.document else { return }
 
-        // Force PDFKit to re-render by going to the current page
-        if let currentPage = pdfView.currentPage {
-            pdfView.go(to: currentPage)
+        // Store current state
+        let currentPageIndex = currentPageIndex
+        let currentScale = pdfView.scaleFactor
+
+        // Force PDFKit to completely re-render by toggling the document
+        // This clears all internal caches
+        pdfView.document = nil
+        pdfView.document = document
+
+        // Restore scale
+        pdfView.scaleFactor = currentScale
+
+        // Navigate back to the page we were on
+        if let page = document.page(at: currentPageIndex) {
+            pdfView.go(to: page)
         }
-
-        // Also layout the document view to refresh
-        pdfView.layoutDocumentView()
     }
 }
 
@@ -897,10 +993,11 @@ struct ShareSheet: UIViewControllerRepresentable {
 }
 
 #Preview {
+    let subscriptionManager = SubscriptionManager()
     NavigationStack {
         PDFViewerView(document: StoredPDFDocument())
-            .environmentObject(DocumentManager())
-            .environmentObject(SignatureManager(subscriptionManager: SubscriptionManager()))
-            .environmentObject(SubscriptionManager())
+            .environmentObject(subscriptionManager)
+            .environmentObject(DocumentManager(subscriptionManager: subscriptionManager))
+            .environmentObject(SignatureManager(subscriptionManager: subscriptionManager))
     }
 }

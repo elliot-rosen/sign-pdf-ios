@@ -5,7 +5,7 @@ import StoreKit
 struct SignSimplePDFApp: App {
     let persistenceController = PersistenceController.shared
     @StateObject private var subscriptionManager = SubscriptionManager()
-    @StateObject private var documentManager = DocumentManager()
+    @StateObject private var documentManager: DocumentManager
     @StateObject private var signatureManager: SignatureManager
     @StateObject private var onboardingCoordinator: OnboardingCoordinator
 
@@ -13,7 +13,7 @@ struct SignSimplePDFApp: App {
         let subscriptionManager = SubscriptionManager()
         self._subscriptionManager = StateObject(wrappedValue: subscriptionManager)
         self._onboardingCoordinator = StateObject(wrappedValue: OnboardingCoordinator(subscriptionManager: subscriptionManager))
-        self._documentManager = StateObject(wrappedValue: DocumentManager())
+        self._documentManager = StateObject(wrappedValue: DocumentManager(subscriptionManager: subscriptionManager))
         self._signatureManager = StateObject(wrappedValue: SignatureManager(subscriptionManager: subscriptionManager))
     }
 

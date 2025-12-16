@@ -28,9 +28,6 @@ struct HomeView: View {
                         HapticManager.shared.buttonTap()
                         subscriptionManager.presentPaywall()
                     }
-
-                    Divider()
-                        .padding(.top, AppTheme.Spacing.xs)
                 }
 
                 // Content

@@ -41,8 +41,8 @@ struct SignatureView: View {
                 featureIcon: "signature",
                 features: [
                     "Save unlimited signatures",
-                    "Merge & split PDFs",
-                    "Advanced page editing"
+                    "Combine multiple PDFs",
+                    "No watermarks on exports"
                 ]
             )
             .confirmationDialog(

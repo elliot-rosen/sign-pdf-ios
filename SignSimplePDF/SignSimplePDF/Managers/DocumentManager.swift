@@ -15,6 +15,7 @@ class DocumentManager: NSObject, ObservableObject {
 
     private let persistenceController = PersistenceController.shared
     private var cancellables = Set<AnyCancellable>()
+    private var subscriptionManager: SubscriptionManager?
 
     // Expose context for annotation bridge
     var context: NSManagedObjectContext {
@@ -22,6 +23,12 @@ class DocumentManager: NSObject, ObservableObject {
     }
 
     override init() {
+        super.init()
+        loadDocuments()
+    }
+
+    init(subscriptionManager: SubscriptionManager) {
+        self.subscriptionManager = subscriptionManager
         super.init()
         loadDocuments()
     }
@@ -51,9 +58,22 @@ class DocumentManager: NSObject, ObservableObject {
             }
         }
 
+        // Check file size
+        let fileSize = try FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64 ?? 0
+        if fileSize > DocumentError.maxFileSizeBytes {
+            throw DocumentError.fileTooLarge(maxSizeMB: 50)
+        }
+
         let data = try Data(contentsOf: url)
+
+        // Validate PDF
         guard let pdfDocument = PDFKit.PDFDocument(data: data) else {
-            throw DocumentError.invalidPDF
+            throw DocumentError.corruptedPDF
+        }
+
+        // Check for empty PDF
+        if pdfDocument.pageCount == 0 {
+            throw DocumentError.emptyPDF
         }
 
         let document = createDocument(
@@ -192,7 +212,79 @@ class DocumentManager: NSObject, ObservableObject {
             throw DocumentError.fileNotFound
         }
 
-        return fileURL
+        // Premium users get clean export
+        if subscriptionManager?.isSubscribed == true {
+            return fileURL
+        }
+
+        // Free users get watermarked export
+        guard let pdfDocument = PDFKit.PDFDocument(url: fileURL) else {
+            throw DocumentError.invalidPDF
+        }
+
+        let watermarkedPDF = applyWatermark(to: pdfDocument)
+
+        // Save to temp location
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("export_\(UUID().uuidString).pdf")
+        watermarkedPDF.write(to: tempURL)
+
+        return tempURL
+    }
+
+    // MARK: - Watermarking
+
+    private func applyWatermark(to document: PDFKit.PDFDocument) -> PDFKit.PDFDocument {
+        let watermarkedDoc = PDFKit.PDFDocument()
+
+        for i in 0..<document.pageCount {
+            guard let page = document.page(at: i) else { continue }
+            let bounds = page.bounds(for: .mediaBox)
+
+            // Create new page with watermark
+            let renderer = UIGraphicsPDFRenderer(bounds: bounds)
+            let data = renderer.pdfData { context in
+                context.beginPage()
+
+                // Draw original page
+                if let cgPage = page.pageRef {
+                    let ctx = context.cgContext
+                    ctx.saveGState()
+                    // PDF pages have origin at bottom-left, need to flip
+                    ctx.translateBy(x: 0, y: bounds.height)
+                    ctx.scaleBy(x: 1, y: -1)
+                    ctx.drawPDFPage(cgPage)
+                    ctx.restoreGState()
+                }
+
+                // Draw watermark
+                let watermarkText = "SignSimple"
+                let fontSize = bounds.width * 0.08
+                let attributes: [NSAttributedString.Key: Any] = [
+                    .font: UIFont.systemFont(ofSize: fontSize, weight: .bold),
+                    .foregroundColor: UIColor.gray.withAlphaComponent(0.2)
+                ]
+
+                let textSize = watermarkText.size(withAttributes: attributes)
+
+                // Position in center, rotated -30 degrees
+                let ctx = context.cgContext
+                ctx.saveGState()
+                ctx.translateBy(x: bounds.width / 2, y: bounds.height / 2)
+                ctx.rotate(by: -.pi / 6)  // -30 degrees
+                watermarkText.draw(
+                    at: CGPoint(x: -textSize.width / 2, y: -textSize.height / 2),
+                    withAttributes: attributes
+                )
+                ctx.restoreGState()
+            }
+
+            if let newPage = PDFKit.PDFDocument(data: data)?.page(at: 0) {
+                watermarkedDoc.insert(newPage, at: i)
+            }
+        }
+
+        return watermarkedDoc
     }
 
     // MARK: - PDF Editing (Premium Features)
@@ -392,6 +484,11 @@ enum DocumentError: LocalizedError {
     case loadFailed
     case saveFailed
     case exportFailed
+    case fileTooLarge(maxSizeMB: Int)
+    case emptyPDF
+    case corruptedPDF
+
+    static let maxFileSizeBytes: Int64 = 50 * 1024 * 1024  // 50 MB
 
     var errorDescription: String? {
         switch self {
@@ -407,6 +504,12 @@ enum DocumentError: LocalizedError {
             return "Failed to save the PDF document"
         case .exportFailed:
             return "Failed to export the PDF document"
+        case .fileTooLarge(let maxSizeMB):
+            return "This file exceeds the \(maxSizeMB) MB limit. Please choose a smaller file."
+        case .emptyPDF:
+            return "This PDF has no pages"
+        case .corruptedPDF:
+            return "This PDF appears to be corrupted and cannot be opened"
         }
     }
 }

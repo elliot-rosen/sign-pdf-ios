@@ -64,9 +64,8 @@ struct UpgradePromptView: View {
             // Features list
             VStack(spacing: AppTheme.Spacing.sm) {
                 UpgradeFeatureRow(icon: "signature", text: "Unlimited signatures")
-                UpgradeFeatureRow(icon: "doc.text.image", text: "Advanced PDF editing")
-                UpgradeFeatureRow(icon: "rectangle.stack", text: "Batch processing")
-                UpgradeFeatureRow(icon: "paintbrush.pointed", text: "Custom stamps & watermarks")
+                UpgradeFeatureRow(icon: "doc.on.doc", text: "Combine multiple PDFs")
+                UpgradeFeatureRow(icon: "checkmark.seal", text: "No watermarks on exports")
             }
 
             // Upgrade button
@@ -266,9 +265,9 @@ struct UpgradePromptOverlayWithBinding: ViewModifier {
             .ignoresSafeArea()
 
         UpgradePromptView(
-            feature: "Advanced PDF Editing",
-            description: "Merge, split, rotate pages and more with professional editing tools.",
-            icon: "doc.text.image",
+            feature: "Unlimited Signatures",
+            description: "Save unlimited signatures and export without watermarks.",
+            icon: "signature",
             onUpgrade: {},
             onDismiss: {}
         )

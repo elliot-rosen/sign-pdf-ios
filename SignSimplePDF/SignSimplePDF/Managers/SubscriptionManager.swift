@@ -371,15 +371,7 @@ class SubscriptionManager: ObservableObject {
         isSubscribed
     }
 
-    var canUseBatchProcessing: Bool {
-        isSubscribed
-    }
-
-    var canUseCustomStamps: Bool {
-        isSubscribed
-    }
-
-    var canUseFormFilling: Bool {
+    var canCombinePDFs: Bool {
         isSubscribed
     }
 
