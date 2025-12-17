@@ -101,8 +101,6 @@ struct SignatureDrawingView: View {
     @State private var isSaving = false
     @State private var selectedColor: PenColor = .black
     @State private var selectedWidth: PenWidth = .medium
-    @State private var showPreview = false
-    @State private var previewImage: UIImage?
 
     var body: some View {
         NavigationStack {
@@ -191,8 +189,8 @@ struct SignatureDrawingView: View {
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Preview") {
-                        showSignaturePreview()
+                    Button("Save") {
+                        saveSignature()
                     }
                     .disabled(!hasDrawing || isSaving)
                 }
@@ -202,23 +200,7 @@ struct SignatureDrawingView: View {
             } message: {
                 Text(errorMessage)
             }
-            .sheet(isPresented: $showPreview) {
-                SignaturePreviewSheet(
-                    previewImage: previewImage,
-                    signatureName: $signatureName,
-                    onConfirm: confirmSave,
-                    onCancel: { showPreview = false }
-                )
-            }
         }
-    }
-
-    private func showSignaturePreview() {
-        // Generate preview image from drawing
-        let drawing = canvasView.drawing
-        let bounds = drawing.bounds.insetBy(dx: -20, dy: -20)
-        previewImage = drawing.image(from: bounds, scale: 2.0)
-        showPreview = true
     }
 
     // MARK: - Pen Options View
@@ -292,9 +274,8 @@ struct SignatureDrawingView: View {
         hasDrawing = false
     }
 
-    private func confirmSave() {
+    private func saveSignature() {
         isSaving = true
-        showPreview = false
 
         let name = signatureName.isEmpty ? "Signature \(signatureManager.signatureCount + 1)" : signatureName
 
@@ -311,97 +292,6 @@ struct SignatureDrawingView: View {
             showError = true
             isSaving = false
         }
-    }
-}
-
-// MARK: - Signature Preview Sheet
-
-struct SignaturePreviewSheet: View {
-    let previewImage: UIImage?
-    @Binding var signatureName: String
-    let onConfirm: () -> Void
-    let onCancel: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: AppTheme.Spacing.lg) {
-                Text("Preview your signature")
-                    .font(AppTheme.Typography.subheadline)
-                    .foregroundColor(AppTheme.Colors.textSecondary)
-                    .padding(.top, AppTheme.Spacing.md)
-
-                // Preview
-                ZStack {
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                        .fill(Color.white)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                                .stroke(AppTheme.Colors.textTertiary.opacity(0.3), lineWidth: 1)
-                        )
-
-                    if let image = previewImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .padding(AppTheme.Spacing.md)
-                    } else {
-                        Text("No preview available")
-                            .font(AppTheme.Typography.body)
-                            .foregroundColor(AppTheme.Colors.textTertiary)
-                    }
-                }
-                .frame(height: 150)
-                .padding(.horizontal, AppTheme.Spacing.md)
-
-                // Name field
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
-                    Text("Signature Name")
-                        .font(AppTheme.Typography.caption1)
-                        .foregroundColor(AppTheme.Colors.textSecondary)
-
-                    TextField("My Signature", text: $signatureName)
-                        .textFieldStyle(.roundedBorder)
-                }
-                .padding(.horizontal, AppTheme.Spacing.md)
-
-                // Info text
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    Image(systemName: "info.circle")
-                        .foregroundColor(AppTheme.Colors.info)
-                    Text("This is how your signature will appear on documents")
-                        .font(AppTheme.Typography.caption1)
-                        .foregroundColor(AppTheme.Colors.textSecondary)
-                }
-                .padding(.horizontal, AppTheme.Spacing.md)
-
-                Spacer()
-
-                // Save button
-                Button {
-                    HapticManager.shared.buttonTap()
-                    onConfirm()
-                } label: {
-                    Text("Save Signature")
-                        .font(AppTheme.Typography.body)
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(PrimaryButtonStyle())
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.bottom, AppTheme.Spacing.md)
-            }
-            .background(AppTheme.Colors.background)
-            .navigationTitle("Confirm Signature")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Back") {
-                        onCancel()
-                    }
-                }
-            }
-        }
-        .presentationDetents([.medium])
     }
 }
 

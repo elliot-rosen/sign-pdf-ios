@@ -7,15 +7,13 @@ struct PaywallView: View {
     @State private var selectedProduct: Product?
     @State private var canDismiss = false
     @State private var showFeatures = false
-    @State private var showingTermsOfService = false
-    @State private var showingPrivacyPolicy = false
     @State private var activateTrial = true
+    @State private var legalURL: IdentifiableURL?
 
     let dismissCountdown: TimeInterval = 8.0
 
-    // Update these URLs with your actual Terms of Service and Privacy Policy URLs
-    private let termsOfServiceURL = URL(string: "https://www.noworrieslifestyle.com/eula")!
-    private let privacyPolicyURL = URL(string: "https://www.noworrieslifestyle.com/privacy-policy")!
+    private let termsOfServiceURL = URL(string: "https://noworrieslifestyle.com/eula")!
+    private let privacyPolicyURL = URL(string: "https://noworrieslifestyle.com/privacy-policy")!
 
     var body: some View {
         ZStack {
@@ -79,11 +77,8 @@ struct PaywallView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showingTermsOfService) {
-            SafariView(url: termsOfServiceURL)
-        }
-        .sheet(isPresented: $showingPrivacyPolicy) {
-            SafariView(url: privacyPolicyURL)
+        .sheet(item: $legalURL) { item in
+            SafariView(url: item.url)
         }
     }
 
@@ -315,13 +310,13 @@ struct PaywallView: View {
 
             HStack(spacing: AppTheme.Spacing.lg) {
                 Button("Terms of Service") {
-                    showingTermsOfService = true
+                    legalURL = IdentifiableURL(url: termsOfServiceURL)
                 }
                 .font(AppTheme.Typography.caption1)
                 .foregroundColor(.white.opacity(0.8))
 
                 Button("Privacy Policy") {
-                    showingPrivacyPolicy = true
+                    legalURL = IdentifiableURL(url: privacyPolicyURL)
                 }
                 .font(AppTheme.Typography.caption1)
                 .foregroundColor(.white.opacity(0.8))

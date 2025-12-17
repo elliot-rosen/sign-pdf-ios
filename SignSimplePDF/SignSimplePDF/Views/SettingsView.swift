@@ -3,14 +3,13 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
 
-    @State private var showSafari = false
-    @State private var safariURL: URL?
+    @State private var safariURL: IdentifiableURL?
 
     private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     private let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
 
-    private let termsURL = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
-    private let privacyURL = URL(string: "https://www.apple.com/legal/privacy/")!
+    private let termsURL = URL(string: "https://noworrieslifestyle.com/eula")!
+    private let privacyURL = URL(string: "https://noworrieslifestyle.com/privacy-policy")!
     private let supportEmail = "support@noworrieslifestyle.com"
 
     var body: some View {
@@ -61,8 +60,7 @@ struct SettingsView: View {
                 // Legal Section
                 Section {
                     Button {
-                        safariURL = termsURL
-                        showSafari = true
+                        safariURL = IdentifiableURL(url: termsURL)
                     } label: {
                         HStack {
                             Text("Terms of Service")
@@ -75,8 +73,7 @@ struct SettingsView: View {
                     }
 
                     Button {
-                        safariURL = privacyURL
-                        showSafari = true
+                        safariURL = IdentifiableURL(url: privacyURL)
                     } label: {
                         HStack {
                             Text("Privacy Policy")
@@ -109,10 +106,8 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .sheet(isPresented: $showSafari) {
-                if let url = safariURL {
-                    SafariView(url: url)
-                }
+            .sheet(item: $safariURL) { item in
+                SafariView(url: item.url)
             }
         }
     }
@@ -183,6 +178,13 @@ struct SettingsView: View {
             UIApplication.shared.open(url)
         }
     }
+}
+
+// MARK: - Identifiable URL Wrapper
+
+struct IdentifiableURL: Identifiable {
+    let id = UUID()
+    let url: URL
 }
 
 #Preview {

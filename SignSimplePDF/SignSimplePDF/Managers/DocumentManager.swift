@@ -200,6 +200,18 @@ class DocumentManager: NSObject, ObservableObject {
         }
     }
 
+    func renameDocument(_ document: StoredPDFDocument, newName: String) {
+        let trimmedName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+
+        document.name = trimmedName
+        document.lastModified = Date()
+        saveContext()
+
+        // Trigger UI update
+        objectWillChange.send()
+    }
+
     func exportDocument(_ document: StoredPDFDocument) async throws -> URL {
         guard let fileName = document.fileName else {
             throw DocumentError.fileNotFound

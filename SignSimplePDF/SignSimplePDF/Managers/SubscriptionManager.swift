@@ -154,7 +154,16 @@ class SubscriptionManager: ObservableObject {
             switch result {
             case .success(let verification):
                 let transaction = try checkVerified(verification)
-                await updateSubscriptionStatus(transaction: transaction)
+
+                // Handle both subscription and lifetime purchases
+                if transaction.productType == .autoRenewable {
+                    await updateSubscriptionStatus(transaction: transaction)
+                } else if transaction.productType == .nonConsumable {
+                    // Lifetime purchase - activate premium immediately
+                    isSubscribed = true
+                    subscriptionStatus = .active
+                }
+
                 await transaction.finish()
                 purchaseState = .purchased
 
@@ -297,7 +306,15 @@ class SubscriptionManager: ObservableObject {
 
                     await MainActor.run {
                         Task {
-                            await self.updateSubscriptionStatus(transaction: transaction)
+                            // Handle both subscription and lifetime purchases
+                            if transaction.productType == .autoRenewable {
+                                await self.updateSubscriptionStatus(transaction: transaction)
+                            } else if transaction.productType == .nonConsumable {
+                                // Lifetime purchase - activate premium
+                                self.isSubscribed = true
+                                self.subscriptionStatus = .active
+                                self.showPaywall = false
+                            }
                         }
                     }
 

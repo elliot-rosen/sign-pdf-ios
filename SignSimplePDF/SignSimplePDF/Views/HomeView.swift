@@ -14,6 +14,9 @@ struct HomeView: View {
     @State private var showViewer = false
     @State private var documentToDelete: StoredPDFDocument?
     @State private var showDeleteConfirmation = false
+    @State private var documentToRename: StoredPDFDocument?
+    @State private var showRenameAlert = false
+    @State private var newDocumentName = ""
     @State private var showError = false
     @State private var errorMessage = ""
 
@@ -85,6 +88,20 @@ struct HomeView: View {
             } message: {
                 Text("Are you sure you want to delete this document? This action cannot be undone.")
             }
+            .alert("Rename Document", isPresented: $showRenameAlert) {
+                TextField("Name", text: $newDocumentName)
+                Button("Cancel", role: .cancel) {
+                    documentToRename = nil
+                    newDocumentName = ""
+                }
+                Button("Save") {
+                    if let document = documentToRename {
+                        renameDocument(document, to: newDocumentName)
+                    }
+                }
+            } message: {
+                Text("Enter a new name for this document.")
+            }
             .alert("Error", isPresented: $showError) {
                 Button("OK", role: .cancel) { }
             } message: {
@@ -129,6 +146,22 @@ struct HomeView: View {
                         showViewer = true
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
+                            documentToDelete = document
+                            showDeleteConfirmation = true
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                    .contextMenu {
+                        Button {
+                            documentToRename = document
+                            newDocumentName = document.name ?? ""
+                            showRenameAlert = true
+                        } label: {
+                            Label("Rename", systemImage: "pencil")
+                        }
+
                         Button(role: .destructive) {
                             documentToDelete = document
                             showDeleteConfirmation = true
@@ -229,6 +262,13 @@ struct HomeView: View {
         HapticManager.shared.buttonTap()
         documentManager.deleteDocument(document)
         documentToDelete = nil
+    }
+
+    private func renameDocument(_ document: StoredPDFDocument, to newName: String) {
+        HapticManager.shared.buttonTap()
+        documentManager.renameDocument(document, newName: newName)
+        documentToRename = nil
+        newDocumentName = ""
     }
 }
 
